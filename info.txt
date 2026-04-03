@@ -1,41 +1,9 @@
-//    Connection-specific DNS Suffix  . : dhcp01
-  // IPv4 Address. . . . . . . . . . . : 10.5.91.199
-   //Subnet Mask . . . . . . . . . . . : 255.255.240.0
-   //Default Gateway . . . . . . . . . : 10.5.80.1
-  
-
-  // {
-    //   "id": "6",
-    //   "name": "Tea",
-    //   "dealerPrice": 150,
-    //   "retailPrice": 200,
-    //   "moq": 10
-    // },
-    // {
-    //   "id": "7",
-    //   "name": "Coffee",
-    //   "dealerPrice": 120,
-    //   "retailPrice": 160,
-    //   "moq": 8
-    // },
-    // {
-    //   "id": "8",
-    //   "name": "Butter",
-    //   "dealerPrice": 50,
-    //   "retailPrice": 70,
-    //   "moq": 4
-    // },
-    // {
-    //   "id": "9",
-    //   "name": "Cheese",
-    //   "dealerPrice": 80,
-    //   "retailPrice": 110,
-    //   "moq": 5
-    // },
-    // {
-    //   "id": "10",
-    //   "name": "Eggs",
-    //   "dealerPrice": 30,
-    //   "retailPrice": 50,
-    //   "moq": 12
-    // }
+step 1: open the project in  your vs code 
+    => For not getting any error you should download the libraries firs
+     npx expo install expo-camera,npm install axios,npm install json-server
+step2: Open two terminals
+        terminal 1: where the real project work ater
+                     =>npx expo start
+                    =>
+        terminal 2: where the  json server in running 
+                  npx json-server --watch db.json --port 3000 {you can choose you own port number depending upon you} 
