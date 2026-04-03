@@ -1,0 +1,41 @@
+//    Connection-specific DNS Suffix  . : dhcp01
+  // IPv4 Address. . . . . . . . . . . : 10.5.91.199
+   //Subnet Mask . . . . . . . . . . . : 255.255.240.0
+   //Default Gateway . . . . . . . . . : 10.5.80.1
+  
+
+  // {
+    //   "id": "6",
+    //   "name": "Tea",
+    //   "dealerPrice": 150,
+    //   "retailPrice": 200,
+    //   "moq": 10
+    // },
+    // {
+    //   "id": "7",
+    //   "name": "Coffee",
+    //   "dealerPrice": 120,
+    //   "retailPrice": 160,
+    //   "moq": 8
+    // },
+    // {
+    //   "id": "8",
+    //   "name": "Butter",
+    //   "dealerPrice": 50,
+    //   "retailPrice": 70,
+    //   "moq": 4
+    // },
+    // {
+    //   "id": "9",
+    //   "name": "Cheese",
+    //   "dealerPrice": 80,
+    //   "retailPrice": 110,
+    //   "moq": 5
+    // },
+    // {
+    //   "id": "10",
+    //   "name": "Eggs",
+    //   "dealerPrice": 30,
+    //   "retailPrice": 50,
+    //   "moq": 12
+    // }

@@ -1,98 +1,256 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  Touchable,
+  TouchableOpacity,
+  TextInput,
+} from "react-native";
+import { Button } from "react-native";
+import { API } from "../../src/api/api";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import {router}from "expo-router";
+type Product = {
+  id: string;
+  name: string;
+  dealerPrice: number;
+  retailPrice: number;
+  moq: number;
+};
+type CartItem = {
+  product: Product;
+  quantity: number;
+};
+export default function Index() {
+  const [products, setProducts] = useState<Product[]>([]);
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+  // const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [quantity, setQuantity] = useState<number>(0);
+  const [customerType, setCustomerType] = useState("retail");
+  const [total, setTotal] = useState<number>(0);
+  const [error, setError] = useState("");
+  const [cart, setCart] = useState<CartItem[]>([]); // this is for multiple product order, we can show this in cart screen and place order from there, for now we are just adding to cart without showing it anywhere
+
+  
+  const placeOrder = () => {
+    if (!selectedProduct) {
+      setError("Please select a product");
+      return;
+    }
+    const qty = Number(quantity);
+    if (qty < selectedProduct.moq) {
+      setError("MOQ not satisfied");
+      return;
+    }
+    setError("");
+    const price =
+      customerType === "dealer"
+        ? selectedProduct.dealerPrice
+        : selectedProduct.retailPrice;
+    setTotal(price * qty);
+  };
+
+  const addToCart = (product: Product) => {
+    const qty = Number(quantity);
+
+    if (!qty) {
+      setError("Please enter quantity");
+      return;
+    }
+    if (qty < product.moq) {
+      setError("MOQ not satisfied");
+      return;
+    }
+    setError("");
+
+    const existingItem = cart.find((item) => item.product.id === product.id);
+
+    if (existingItem) {
+      setCart(
+        cart.map((item) =>
+          item.product.id === product.id
+            ? { ...item, quantity: item.quantity + qty }
+            : item,
+        ),
+      );
+    } else {
+      setCart([...cart, { product, quantity: qty }]);
+    }
+  };
+
+  const removeFromCart = (productId: string) => {
+    setCart(cart.filter((item) => item.product.id !== productId));
+  };
+
+  const resetCart = () => {
+    setCart([]);
+    setSelectedProduct(null);
+    setQuantity(0);
+    setTotal(0);
+    setError("");
+  };
+
+  const getTotal = () => {
+    return cart.reduce((total, item) => {
+      const price =
+        customerType === "dealer"
+          ? item.product.dealerPrice
+          : item.product.retailPrice;
+
+      return total + price * item.quantity;
+    }, 0);
+  };
+
+  //  this is for bar code logic
+ 
+
+    useEffect(() => {
+      console.log("🌐 BASE URL:", API.defaults.baseURL);
+      console.log("📡 Calling API: /products");
+
+      API.get("/products")
+        .then((res) => {
+          console.log("✅ Response:", res.data);
+          setProducts(res.data);
+        })
+        .catch((err) => {
+          console.log("❌ Error:", err.message);
+        });
+
+      
+      
+    }, []);
+
+    return (
+      <View style={{ padding: 30, marginTop: 40 }}>
+        {/* Customer Type */}
+        {/* <Text>Customer Type:</Text>
+        <View
+          style={{
+            flexDirection: "row",
+            marginBottom: 10,
+            justifyContent: "space-around",
+          }}
+        >
+          <Button title="Dealer" onPress={() => setCustomerType("dealer")} />
+          <Button title="Retail" onPress={() => setCustomerType("retail")} />
+        </View> */}  yeh kaam kr ra ha shi se 
+    
+ <Text style={{ padding: 9, fontSize: 20 }}>Customer Type:</Text>
+
+  <View
+    style={{
+      flexDirection: "row",
+      marginBottom: 10,
+      justifyContent: "space-around",
+    }}
+  >
+    <TouchableOpacity
+      onPress={() => setCustomerType("dealer")}
+      style={{
+        backgroundColor: customerType === "dealer" ? "green" : "blue",
+        padding: 10,
+        borderRadius: 5,
+      }}
+    >
+      <Text style={{ color: "white" }}>Dealer</Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity
+      onPress={() => setCustomerType("retail")}
+      style={{
+        backgroundColor: customerType === "retail" ? "green" : "blue",
+        padding: 10,
+        borderRadius: 5,
+      }}
+    >
+      <Text style={{ color: "white" }}>Retail</Text>
+    </TouchableOpacity>
+  </View>
+
+
+        {/* Product List */}
+        <Text>Product List:</Text>
+        <FlatList
+          data={products}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => {
+                setSelectedProduct(item);
+                addToCart(item);
+              }}
+              style={{
+                borderWidth: 1,
+                padding: 10,
+                marginVertical: 5,
+              }}
+            >
+              <Text>{item.name}</Text>
+              <Text>MOQ: {item.moq}</Text>
+              <Text>
+                Price:{" "}
+                {customerType === "dealer"
+                  ? item.dealerPrice
+                  : item.retailPrice}
+              </Text>
+            </TouchableOpacity>
+          )}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
+
+        {/* Selected Product */}
+
+        {/* Quantity */}
+        <TextInput
+          placeholder="Enter quantity"
+          value={quantity.toString()}
+          onChangeText={(text) => setQuantity(Number(text))}
+          keyboardType="numeric"
+          style={{
+            borderWidth: 1,
+            marginVertical: 10,
+            padding: 8,
+          }}
+        />
+        {/* cart item */}
+
+        <Text>Cart </Text>
+        {cart.map((item) => (
+          <View
+            key={item.product.id}
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              borderWidth: 1,
+              padding: 10,
+              marginVertical: 5,
+            }}
+          >
+            <Text>
+              {item.product.name} - Qty: {item.quantity}retailPrice
+            </Text>
+            <Button
+              title="Remove"
+              onPress={() => removeFromCart(item.product.id)}
             />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+          </View>
+        ))}
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
-}
+        {/* Order Button */}
+        <Button title="Place Order" onPress={placeOrder} />
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
+        {/* Error */}
+        {error ? <Text style={{ color: "red" }}>{error}</Text> : null}
+
+        {/* Total */}
+        {total ? <Text>Total Price: ₹{getTotal()}</Text> : null}
+
+        <Button title="Reset Cart" onPress={resetCart} />
+        <Button title="Open scanner" onPress={()=>router.push("/scanner")}></Button>
+      </View>
+    );
+  };
+

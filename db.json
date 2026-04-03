@@ -1,0 +1,47 @@
+{
+  "products": [
+    {
+      "id": "1",
+      "name": "Maggie",
+      "dealerPrice": 90,
+      "retailPrice": 110,
+      "moq": 5,
+      "barcode": "100172"
+    
+    },
+
+    {
+      "id": "2",
+      "name": "Oil",
+      "dealerPrice": 70,
+      "retailPrice": 90,
+      "moq": 3,
+      "barcode": "100173"
+   
+    },
+    {
+      "id": "3",
+      "name": "Sugar",
+      "dealerPrice": 80,
+      "retailPrice": 100,
+      "moq": 4,
+      "barcode": "100174"
+    },
+    {
+      "id": "4",
+      "name": "Flour",
+      "dealerPrice": 60,
+      "retailPrice": 80,
+      "moq": 6,
+      "barcode": "100175"
+    },
+    {
+      "id": "5",
+      "name": "Salt",
+      "dealerPrice": 20,
+      "retailPrice": 30,
+      "moq": 2,
+      "barcode": "100176"
+    }
+  ]
+}
