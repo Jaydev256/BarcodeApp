@@ -6,4 +6,8 @@ step2: Open two terminals
                      =>npx expo start
                     =>
         terminal 2: where the  json server in running 
+<<<<<<< HEAD
                   npx json-server --watch db.json --port 3000 {you can choose you own port number depending upon you} 
+======
+                  npx json-server --watch db.json --port 3000 {you can choose you own port number depending upon you} 
+>>>>>>> da7d235 (info about the project)

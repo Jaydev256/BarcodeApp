@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Alert, ScrollView } from "react-native";
 import {
   View,
   Text,
@@ -9,8 +10,9 @@ import {
 } from "react-native";
 import { Button } from "react-native";
 import { API } from "../../src/api/api";
-
-import {router}from "expo-router";
+import { Redirect, router } from "expo-router";
+import { Router } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 type Product = {
   id: string;
   name: string;
@@ -24,7 +26,6 @@ type CartItem = {
 };
 export default function Index() {
   const [products, setProducts] = useState<Product[]>([]);
-
   // const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState<number>(0);
@@ -33,7 +34,6 @@ export default function Index() {
   const [error, setError] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]); // this is for multiple product order, we can show this in cart screen and place order from there, for now we are just adding to cart without showing it anywhere
 
-  
   const placeOrder = () => {
     if (!selectedProduct) {
       setError("Please select a product");
@@ -52,8 +52,16 @@ export default function Index() {
     setTotal(price * qty);
   };
 
-  const addToCart = (product: Product) => {
+  const addToCart = async(product: Product) => {
+    const token =await AsyncStorage.getItem("token");
     const qty = Number(quantity);
+
+    if(!token) // modified this now add to cart item but cant place order since he was not logged in 
+    {
+      alert("please login first");
+      router.push("/auth/Login");
+      return;
+    }
 
     if (!qty) {
       setError("Please enter quantity");
@@ -65,7 +73,7 @@ export default function Index() {
     }
     setError("");
 
-    const existingItem = cart.find((item) => item.product.id === product.id);
+const existingItem = cart.find((item) => item.product.id === product.id);
 
     if (existingItem) {
       setCart(
@@ -98,33 +106,44 @@ export default function Index() {
         customerType === "dealer"
           ? item.product.dealerPrice
           : item.product.retailPrice;
-
       return total + price * item.quantity;
     }, 0);
   };
 
+  const handleLogout=async()=>{
+    try{
+      await AsyncStorage.removeItem("token");
+      alert("logged out");
+
+      router.replace("/auth/Login");
+    }
+    catch(error)
+    {
+      console.log("Logout error:",error);
+      
+    }
+    };
+  
+
   //  this is for bar code logic
- 
 
-    useEffect(() => {
-      console.log("🌐 BASE URL:", API.defaults.baseURL);
-      console.log("📡 Calling API: /products");
+  useEffect(() => {
+    console.log("🌐 BASE URL:", API.defaults.baseURL);
+    console.log("📡 Calling API: /products");
 
-      API.get("/products")
-        .then((res) => {
-          console.log("✅ Response:", res.data);
-          setProducts(res.data);
-        })
-        .catch((err) => {
-          console.log("❌ Error:", err.message);
-        });
+    API.get("/products")
+      .then((res) => {
+        console.log("✅ Response:", res.data);
+        setProducts(res.data);
+      })
+      .catch((err) => {
+        console.log("❌ Error:", err.message);
+      });
+  }, []);
 
-      
-      
-    }, []);
-
-    return (
-      <View style={{ padding: 30, marginTop: 40 }}>
+  return (
+    <ScrollView>
+      <View>
         {/* Customer Type */}
         {/* <Text>Customer Type:</Text>
         <View
@@ -136,40 +155,39 @@ export default function Index() {
         >
           <Button title="Dealer" onPress={() => setCustomerType("dealer")} />
           <Button title="Retail" onPress={() => setCustomerType("retail")} />
-        </View> */}  yeh kaam kr ra ha shi se 
-    
- <Text style={{ padding: 9, fontSize: 20 }}>Customer Type:</Text>
+        </View> */}
 
-  <View
-    style={{
-      flexDirection: "row",
-      marginBottom: 10,
-      justifyContent: "space-around",
-    }}
-  >
-    <TouchableOpacity
-      onPress={() => setCustomerType("dealer")}
-      style={{
-        backgroundColor: customerType === "dealer" ? "green" : "blue",
-        padding: 10,
-        borderRadius: 5,
-      }}
-    >
-      <Text style={{ color: "white" }}>Dealer</Text>
-    </TouchableOpacity>
+        <Text style={{ padding: 9, fontSize: 20 }}>Customer Type:</Text>
+        <Button title="Logout" onPress={handleLogout} />
+        <View
+          style={{
+            flexDirection: "row",
+            marginBottom: 10,
+            justifyContent: "space-around",
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => setCustomerType("dealer")}
+            style={{
+              backgroundColor: customerType === "dealer" ? "green" : "blue",
+              padding: 10,
+              borderRadius: 5,
+            }}
+          >
+            <Text style={{ color: "white" }}>Dealer</Text>
+          </TouchableOpacity>
 
-    <TouchableOpacity
-      onPress={() => setCustomerType("retail")}
-      style={{
-        backgroundColor: customerType === "retail" ? "green" : "blue",
-        padding: 10,
-        borderRadius: 5,
-      }}
-    >
-      <Text style={{ color: "white" }}>Retail</Text>
-    </TouchableOpacity>
-  </View>
-
+          <TouchableOpacity
+            onPress={() => setCustomerType("retail")}
+            style={{
+              backgroundColor: customerType === "retail" ? "green" : "blue",
+              padding: 10,
+              borderRadius: 5,
+            }}
+          >
+            <Text style={{ color: "white" }}>Retail</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Product List */}
         <Text>Product List:</Text>
@@ -239,7 +257,7 @@ export default function Index() {
           </View>
         ))}
 
-        {/* Order Button */}
+        {/* Order Button to see*/}
         <Button title="Place Order" onPress={placeOrder} />
 
         {/* Error */}
@@ -249,8 +267,11 @@ export default function Index() {
         {total ? <Text>Total Price: ₹{getTotal()}</Text> : null}
 
         <Button title="Reset Cart" onPress={resetCart} />
-        <Button title="Open scanner" onPress={()=>router.push("/scanner")}></Button>
+        <Button
+          title="Open scanner"
+          onPress={() => router.push("/scanner")}
+        ></Button>
       </View>
-    );
-  };
-
+    </ScrollView>
+  );
+}

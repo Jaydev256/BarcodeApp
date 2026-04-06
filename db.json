@@ -1,4 +1,17 @@
 {
+  "users": [
+    {
+      "email": "test@gmail.com",
+      "password": "1234",
+      "id": "CbS1VXZkmtM"
+    },
+    {
+      "name": "a2",
+      "email": "test2@.com",
+      "password": "1234",
+      "id": "KuZnQ99kECs"
+    }
+  ],
   "products": [
     {
       "id": "1",
@@ -7,9 +20,7 @@
       "retailPrice": 110,
       "moq": 5,
       "barcode": "100172"
-    
     },
-
     {
       "id": "2",
       "name": "Oil",
@@ -17,7 +28,6 @@
       "retailPrice": 90,
       "moq": 3,
       "barcode": "100173"
-   
     },
     {
       "id": "3",
@@ -43,5 +53,6 @@
       "moq": 2,
       "barcode": "100176"
     }
-  ]
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }
